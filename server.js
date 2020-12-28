@@ -14,19 +14,24 @@ app.use(express.static('public'))
 
 app.get("/api/notes", function(req,res){
     // use the fs module to read the json db file
-    fs.readFile ('./db.json','utf8',(err,data)=>{
-        if (err){
-            console.log(err);
-            return
-        }
-        console.log(data);
+    fs.readFile (__dirname + '/db/db.json','utf8',(err,data)=>{
+        if (err) throw err;
+            
+        // console.log(data);
         //then parse the file content with json.parse to get the real data (I get an array of objects)
-    }).then((data)=>{
         const dbNote = JSON.parse(data); 
-        res.JSON
-    }) 
-    //use send.json to (send the parsed data back to the browser)
+        //use send.json to (send the parsed data back to the browser)
+        // console.log(dbNote);
+        return res.json(dbNote);
+    
+    })
 
+})
+
+app.post("/api/notes", function(req,res){
+    //access the POSTED data
+    const newNote = req.body;
+    //read file wwith fs module
 })
 
 // this route needs to return the content of notes.html
