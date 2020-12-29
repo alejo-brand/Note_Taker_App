@@ -1,6 +1,7 @@
 var express = require("express");
 var path = require("path");
 const fs = require("fs");
+const {nanoid} = require ("nanoid")
 
 // Sets up the Express App
 // =============================================================
@@ -30,7 +31,11 @@ app.get("/api/notes", function(req,res){
 
 app.post("/api/notes", function(req,res){
     //access the POSTED data
-    const newNote = req.body;
+    const newNote = {
+        title:req.body.title,
+        text:req.body.text,
+        id:nanoid(),
+    };
     //read file wwith fs module
     fs.readFile (__dirname + '/db/db.json','utf8',(err,data)=>{
         if(err) throw  err;
@@ -41,7 +46,36 @@ app.post("/api/notes", function(req,res){
        fs.writeFileSync(__dirname + "/db/db.json", JSON.stringify(dbNote));
        res.json(dbNote);
     })
+});
+
+app.delete("/api/notes/:id", function(req,res){
+    //define a new array
+    console.log(req.params);
+    let newArr = [];
+    // read file with fs and parse it with JSON.parse
+    let newDataFile = JSON.parse(fs.readFileSync(__dirname + "/db/db.json"))
+    newArr = newDataFile;
+    //access the id from req.params.id
+    const uniqId = req.params.id;
+    console.log(uniqId);
+    newArr = newArr.filter(({id})=> id!==uniqId) 
+    
+    fs.writeFileSync(__dirname + "/db/db.json", JSON.stringify(newArr));
+    res.json(newArr);
+
+    
+
+    
+
+    //Option A
+        // find the matching index using .findIndex()
+        //remove target element using .splice()
+    //Option B
+        //use the array.filter() to filer out the matching element
+        // let my array = myArray.filter(element=>element.id !== req.params.id)
 })
+
+
 
 // this route needs to return the content of notes.html
 app.get("/notes",function(req,res){
@@ -49,7 +83,7 @@ app.get("/notes",function(req,res){
 });
 //this route needs to return the content of index.html
 app.get("*",function(req,res){
-    res.sendFile(path.join(__dirname,"index.html"))
+    res.sendFile(path.join(__dirname,"/public/index.html"))
 });
 
 
